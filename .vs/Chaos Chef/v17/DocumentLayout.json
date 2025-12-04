@@ -1,0 +1,119 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\assets\\_game\\scripts\\gamemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|solutionrelative:assets\\_game\\scripts\\gamemanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\assets\\_game\\scripts\\carddisplay.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|solutionrelative:assets\\_game\\scripts\\carddisplay.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|c:\\users\\kerem\\unity projects\\chaos chef\\assets\\_game\\scripts\\audiomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|solutionrelative:assets\\_game\\scripts\\audiomanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\assets\\_game\\scripts\\carddata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|solutionrelative:assets\\_game\\scripts\\carddata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\assets\\_game\\scripts\\optionsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|solutionrelative:assets\\_game\\scripts\\optionsmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\assets\\_game\\scripts\\mainmenumanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{43A16948-8CAA-5178-7ED8-DE5284A946BD}|Assembly-CSharp.csproj|solutionrelative:assets\\_game\\scripts\\mainmenumanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "OptionsManager.cs",
+              "DocumentMoniker": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\OptionsManager.cs",
+              "RelativeDocumentMoniker": "Assets\\_Game\\Scripts\\OptionsManager.cs",
+              "ToolTip": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\OptionsManager.cs",
+              "RelativeToolTip": "Assets\\_Game\\Scripts\\OptionsManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T19:56:17.114Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AudioManager.cs",
+              "DocumentMoniker": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\AudioManager.cs",
+              "RelativeDocumentMoniker": "Assets\\_Game\\Scripts\\AudioManager.cs",
+              "ToolTip": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\AudioManager.cs",
+              "RelativeToolTip": "Assets\\_Game\\Scripts\\AudioManager.cs",
+              "ViewState": "AgIAAGIAAAAAAAAAAAAswGkAAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-02T19:46:49.297Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "MainMenuManager.cs",
+              "DocumentMoniker": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\MainMenuManager.cs",
+              "RelativeDocumentMoniker": "Assets\\_Game\\Scripts\\MainMenuManager.cs",
+              "ToolTip": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\MainMenuManager.cs",
+              "RelativeToolTip": "Assets\\_Game\\Scripts\\MainMenuManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-01T19:27:35.388Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GameManager.cs",
+              "DocumentMoniker": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\GameManager.cs",
+              "RelativeDocumentMoniker": "Assets\\_Game\\Scripts\\GameManager.cs",
+              "ToolTip": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\GameManager.cs",
+              "RelativeToolTip": "Assets\\_Game\\Scripts\\GameManager.cs",
+              "ViewState": "AgIAAI8AAAAAAAAAAAAAAGYAAABPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-01T18:26:25.032Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CardDisplay.cs",
+              "DocumentMoniker": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\CardDisplay.cs",
+              "RelativeDocumentMoniker": "Assets\\_Game\\Scripts\\CardDisplay.cs",
+              "ToolTip": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\CardDisplay.cs",
+              "RelativeToolTip": "Assets\\_Game\\Scripts\\CardDisplay.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEAAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-01T18:23:38.373Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CardData.cs",
+              "DocumentMoniker": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\CardData.cs",
+              "RelativeDocumentMoniker": "Assets\\_Game\\Scripts\\CardData.cs",
+              "ToolTip": "C:\\Users\\kerem\\Unity Projects\\Chaos Chef\\Assets\\_Game\\Scripts\\CardData.cs",
+              "RelativeToolTip": "Assets\\_Game\\Scripts\\CardData.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-01T16:35:05.696Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
