@@ -18,7 +18,7 @@ Oyun, karşılıklı hamle sırasına (**Turn-Based**) dayanır. Kod altyapısı
 Oyuncu destesi, rastgele çekilen kartlardan oluşur ve şu etkileri içerir:
 
 * **Sıcak Servis (Damage):** Müşterinin sabrını doğrudan azaltan ana hasar kaynağı.
-* **Yanlış Sipariş (Risk):** Yüksek hasar potansiyeli taşıyan ancak stratejik kullanım gerektiren kartlar.
+* **Midesini Bozma (Poison):** Yüksek hasar potansiyeli taşıyan ancak stratejik kullanım gerektiren kartlar.
 * **İkram (Heal/Buff):** Garsonun stres seviyesini düşürür (Can yeniler).
 * **Oyalama Taktikleri (Stun/Debuff):** Müşteriyi bekletir veya sonraki hamlesinin etkisini azaltır.
 
@@ -30,7 +30,7 @@ Rakip, `GameManager` içinde tanımlanmış özel bir karar mekanizmasıyla rast
 * **Kötü Yorum Tehdidi (Poison):** Zamanla hasar veren (DoT) bir etki bırakır. Her tur başında garsonun canı azalır.
 * **Hesap Şoku (Debuff):** Hesabı incelemeye başlar. Garsonun bir sonraki saldırısının etkisini **%40** oranında düşürür (`customerDebuffMultiplier`).
 
-> **Not:** Rakip karakter şu aşamada kural tabanlı bir yapıdadır. İlerleyen aşamalarda **ML-Agents** entegrasyonu için gerekli altyapı (State machine) hazırlanmıştır.
+> **Not:** Rakip karakter şu aşamada manuel çalışan bir yapıdadır. İlerleyen aşamalarda **ML-Agents** entegrasyonu için gerekli altyapı (State machine) hazırlanmıştır.
 
 ---
 
@@ -46,7 +46,7 @@ Proje, "Clean Code" prensiplerine uygun olarak modüler bir yapıda tasarlanmı�
 
 ## 🎛️ Menü ve Ayarlar
 * **Ana Menü:** Oyuna giriş ve çıkış işlemleri.
-* **Ayarlar (Options):** `PlayerPrefs` kullanılarak kaydedilen ses ayarları. Müzik ve Efekt sesleri sliderlar aracılığıyla gerçek zamanlı (Logaritmik dB dönüşümü ile) ayarlanabilir.
+* **Ayarlar (Options):** Müzik ve Efekt sesleri sliderlar aracılığıyla gerçek zamanlı (Logaritmik dB dönüşümü ile) ayarlanabilir.
 
 ---
 
@@ -54,11 +54,8 @@ Proje, "Clean Code" prensiplerine uygun olarak modüler bir yapıda tasarlanmı�
 Bu repo, projenin kaynak kodlarını içerir.
 
 * **Unity Versiyonu:** 2021.3.x (LTS)
-* **Library Klasörü:** `.gitignore` dosyası ile hariç tutulmuştur.
 
 **Projeyi kendi bilgisayarınızda çalıştırmak için:**
 1.  Repoyu klonlayın.
 2.  Unity Hub üzerinden projeyi "Add" diyerek ekleyin.
 3.  Unity, gerekli kütüphaneleri otomatik olarak oluşturacaktır.
-
-*Bu proje, Oyun Geliştirme dersi kapsamında hazırlanmıştır.*
