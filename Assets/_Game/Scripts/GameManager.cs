@@ -52,6 +52,16 @@ public class GameManager : MonoBehaviour
     private int customerDebuffTurns = 0;
     private float customerDebuffMultiplier = 1f;
 
+    [Header("Stamina System")]
+    public int playerStamina = 7;
+    public int maxStamina = 7;
+    public int staminaPerTurn = 2;
+    public TextMeshProUGUI staminaText; // UI için
+    public Slider staminaSlider; // Opsiyonel slider
+
+    [Header("AI System")]
+    private CustomerAI customerAI;
+
 
     private void Awake()
     {
@@ -67,6 +77,18 @@ public class GameManager : MonoBehaviour
         UpdateHPUI();
         winLosePanel.SetActive(false);
         AITurnButton.interactable = false;
+
+        // Stamina setup
+        playerStamina = maxStamina;
+        if (staminaSlider != null) staminaSlider.maxValue = maxStamina;
+        UpdateStaminaUI();
+
+        // AI setup
+        customerAI = CustomerAI.Instance;
+        if (customerAI != null)
+        {
+            customerAI.LoadQTable();
+        }
 
         SetupImages();
         SpawnDeck();
@@ -146,8 +168,29 @@ public class GameManager : MonoBehaviour
 
         CardData card = playedCardDisplay.cardData;
 
-        float damage = card.baseDamage * customerDebuffMultiplier;
-        customerHP -= damage;
+        // Stamina kontrolü
+        if (playerStamina < card.staminaCost)
+        {
+            Debug.Log($"Yetersiz stamina! Gerekli: {card.staminaCost}, Mevcut: {playerStamina}");
+            return;
+        }
+
+        // Stamina harca
+        playerStamina -= card.staminaCost;
+        UpdateStaminaUI();
+
+        // Heal kartı kontrolü
+        if (card.isHeal)
+        {
+            playerHP = Mathf.Min(playerHP + card.baseDamage, maxHP);
+            AudioManager.Instance.PlayWhoop();
+        }
+        else
+        {
+            float damage = card.baseDamage * customerDebuffMultiplier;
+            customerHP -= damage;
+        }
+
         switch (card.effectType)
         {
             case "Poison":
@@ -171,6 +214,10 @@ public class GameManager : MonoBehaviour
 
             case "Damage":
                 AudioManager.Instance.PlayDamage();
+                break;
+
+            case "Heal":
+                // Zaten yukarıda işlendi
                 break;
         }
 
@@ -208,6 +255,10 @@ public class GameManager : MonoBehaviour
 
         if (isPlayerNext)
         {
+            // Stamina yenilenme (tur başı)
+            playerStamina = Mathf.Min(playerStamina + staminaPerTurn, maxStamina);
+            UpdateStaminaUI();
+
             if (playerPoisonStacks > 0)
             {
                 playerHP -= 10f;
@@ -280,39 +331,96 @@ public class GameManager : MonoBehaviour
 
     public void CustomerAction()
     {
-        int actionId = Random.Range(0, 4);
-        switch (actionId)
+        // Q-Learning AI kullan
+        if (customerAI != null)
         {
-            case 0:
-                playerHP -= 25f * playerDebuffMultiplier;
-                AudioManager.Instance.PlayComplaints();
-                Debug.Log("Musteri: sikayet firtinasi! 25 hasar!");
-                break;
-            case 1:
-                playerStunTurns += 1;
-                playerStunImage.gameObject.SetActive(true);
-                playerHP -= 15f * playerDebuffMultiplier;
-                AudioManager.Instance.PlayAllergy();
-                Debug.Log("Musteri: Alerji tuzagi! Stun +15 hasar!");
-                break;
-            case 2:
-                playerPoisonStacks += 2;
-                AudioManager.Instance.PlayBadComments();
-                playerPoisonImage.gameObject.SetActive(true);
-                Debug.Log("Musteri: Kotu yorum zehri! 2 tur poison!");
-                break;
-            case 3:
-                playerDebuffMultiplier = 0.6f;
-                playerDebuffImage.gameObject.SetActive(true);
-                playerDebuffTurns = 2;
-                AudioManager.Instance.PlayShock();
-                Debug.Log("Musteri: Hesap soku! Debuff %40!");
-                break;
+            // State hesapla
+            int state = customerAI.GetStateHash(
+                playerHP, customerHP, maxHP,
+                playerStunTurns, playerPoisonStacks, playerDebuffTurns
+            );
+            Debug.Log("CustomerAI exists.");
+            // Aksiyon seç
+            int actionIndex = customerAI.SelectAction(state);
+            AIAction action = customerAI.ExecuteAction(actionIndex);
+
+            // Aksiyonu uygula
+            float damage = action.damage * playerDebuffMultiplier;
+            playerHP -= damage;
+
+            switch (action.effectType)
+            {
+                case "Stun":
+                    playerStunTurns += action.effectDuration;
+                    playerStunImage.gameObject.SetActive(true);
+                    AudioManager.Instance.PlayAllergy();
+                    break;
+                case "Poison":
+                    playerPoisonStacks += action.effectDuration;
+                    playerPoisonImage.gameObject.SetActive(true);
+                    AudioManager.Instance.PlayBadComments();
+                    break;
+                case "Debuff":
+                    playerDebuffMultiplier = 0.6f;
+                    playerDebuffImage.gameObject.SetActive(true);
+                    playerDebuffTurns = action.effectDuration;
+                    AudioManager.Instance.PlayShock();
+                    break;
+                default:
+                    if (damage > 20)
+                        AudioManager.Instance.PlayComplaints();
+                    else
+                        AudioManager.Instance.PlayShock();
+                    break;
+            }
+
+            Debug.Log($"Musteri: {action.actionName}! {damage} hasar, Efekt: {action.effectType}");
+
+            // Reward hesapla ve Q-Table güncelle
+            float reward = customerAI.CalculateReward(damage, action.effectType);
+            int newState = customerAI.GetStateHash(
+                playerHP, customerHP, maxHP,
+                playerStunTurns, playerPoisonStacks, playerDebuffTurns
+            );
+            customerAI.UpdateQTable(newState, reward, false);
+            customerAI.TickAllCooldowns();
+        }
+        else
+        {
+            // Fallback: Eski random sistem
+            int actionId = Random.Range(0, 4);
+            switch (actionId)
+            {
+                case 0:
+                    playerHP -= 25f * playerDebuffMultiplier;
+                    AudioManager.Instance.PlayComplaints();
+                    Debug.Log("Musteri: sikayet firtinasi! 25 hasar!");
+                    break;
+                case 1:
+                    playerStunTurns += 1;
+                    playerStunImage.gameObject.SetActive(true);
+                    playerHP -= 15f * playerDebuffMultiplier;
+                    AudioManager.Instance.PlayAllergy();
+                    Debug.Log("Musteri: Alerji tuzagi! Stun +15 hasar!");
+                    break;
+                case 2:
+                    playerPoisonStacks += 2;
+                    AudioManager.Instance.PlayBadComments();
+                    playerPoisonImage.gameObject.SetActive(true);
+                    Debug.Log("Musteri: Kotu yorum zehri! 2 tur poison!");
+                    break;
+                case 3:
+                    playerDebuffMultiplier = 0.6f;
+                    playerDebuffImage.gameObject.SetActive(true);
+                    playerDebuffTurns = 2;
+                    AudioManager.Instance.PlayShock();
+                    Debug.Log("Musteri: Hesap soku! Debuff %40!");
+                    break;
+            }
         }
 
         UpdateHPUI();
         CheckWinLose();
-
         FinishCustomerTurn();
     }
 
@@ -328,6 +436,16 @@ public class GameManager : MonoBehaviour
         playerHPText.text = playerHP.ToString();
         customerHPText.text = customerHP.ToString();
     }
+
+    void UpdateStaminaUI()
+    {
+        if (staminaText != null)
+            staminaText.text = $"{playerStamina}/{maxStamina}";
+        
+        if (staminaSlider != null)
+            staminaSlider.value = playerStamina;
+    }
+
     void UpdateTurnText()
     {
         if (turnText != null)
@@ -342,6 +460,10 @@ public class GameManager : MonoBehaviour
             winLoseText.text = $"Tebrikler!\n${(int)playerHP} bahsis kaptin!";
             AudioManager.Instance.PlayWin();
             isPlayerTurn = false;
+            
+            // AI öğrenme: Oyuncu kazandı (AI kaybetti)
+            if (customerAI != null)
+                customerAI.OnEpisodeEnd(false);
         }
         else if (playerHP <= 0)
         {
@@ -349,6 +471,20 @@ public class GameManager : MonoBehaviour
             winLoseText.text = "0$ bahsis...\nMusteri kazandi!";
             AudioManager.Instance.PlayLose();
             isPlayerTurn = false;
+            
+            // AI öğrenme: AI kazandı
+            if (customerAI != null)
+                customerAI.OnEpisodeEnd(true);
         }
+    }
+
+    // Stamina bilgilerini dışarı expose et (UI için)
+    public int GetPlayerStamina() => playerStamina;
+    public int GetMaxStamina() => maxStamina;
+
+    // Kart stamina kontrolü için (CardDisplay'de kullanılacak)
+    public bool CanAffordCard(CardData card)
+    {
+        return playerStamina >= card.staminaCost;
     }
 }

@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e6fb6ba9197cee343a9ff11fd50ae854, type: 3}
-  m_Name: Cheese Burger
+  m_Name: Soup
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardName: Cheese Burger
-  artwork: {fileID: 696733056425550480, guid: 91b19513069dd5b4aaf3febf4d346704, type: 3}
-  baseDamage: 15
+  cardName: Soup
+  artwork: {fileID: 541970196690566879, guid: e57f6507e0d2e674f94893733273fe09, type: 3}
+  baseDamage: 25
   effectType: Stun
   duration: 1
-  description: Customer Cant Move!
-  staminaCost: 3
+  description: Frozen in Disgust
+  staminaCost: 4
   isHeal: 0

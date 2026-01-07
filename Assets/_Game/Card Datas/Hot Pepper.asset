@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e6fb6ba9197cee343a9ff11fd50ae854, type: 3}
-  m_Name: Cheese Burger
+  m_Name: Hot Pepper
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardName: Cheese Burger
-  artwork: {fileID: 696733056425550480, guid: 91b19513069dd5b4aaf3febf4d346704, type: 3}
-  baseDamage: 15
-  effectType: Stun
+  cardName: Hot Pepper
+  artwork: {fileID: 4825336525682975757, guid: f11c9491c48a6254198e0fae0afd733c, type: 3}
+  baseDamage: 20
+  effectType: Debuff
   duration: 1
-  description: Customer Cant Move!
-  staminaCost: 3
+  description: Burning Surprise
+  staminaCost: 1
   isHeal: 0

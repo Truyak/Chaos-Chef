@@ -31,7 +31,7 @@ public class OptionsManager : MonoBehaviour
 
     public void SetSFXVolume(float value)
     {
-        float dB = value > 0.001f ? Mathf.Log10(value) * 20f : -80f;
+        float dB = value > 0.001f ? Mathf.Log(value) * 20f : -80f;
         audioMixer.SetFloat(SFX_VOLUME_PARAM, dB);
         PlayerPrefs.SetFloat("SFXVolume", value);
     }

@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e6fb6ba9197cee343a9ff11fd50ae854, type: 3}
-  m_Name: Cheese Burger
+  m_Name: Turkish Coffee
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  cardName: Cheese Burger
-  artwork: {fileID: 696733056425550480, guid: 91b19513069dd5b4aaf3febf4d346704, type: 3}
+  cardName: Turkish Coffee
+  artwork: {fileID: 1099371765005024606, guid: 1a4331e9d0a75304b84cadc8abe53e13, type: 3}
   baseDamage: 15
-  effectType: Stun
+  effectType: Heal
   duration: 1
-  description: Customer Cant Move!
-  staminaCost: 3
-  isHeal: 0
+  description: A Moment of Peace
+  staminaCost: 2
+  isHeal: 1

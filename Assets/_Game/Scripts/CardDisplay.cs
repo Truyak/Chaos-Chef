@@ -29,12 +29,39 @@ public class CardDisplay : MonoBehaviour,
     {
         cardData = data;
         artworkImage.sprite = data.artwork;
+        UpdateAffordability();
+    }
+
+    private void Update()
+    {
+        // Her tur başında stamina değişebilir, görsel güncelle
+        UpdateAffordability();
+    }
+
+    private void UpdateAffordability()
+    {
+        if (cardData == null) return;
+        
+        bool canAfford = GameManager.Instance.CanAffordCard(cardData);
+        
+        // Yetersiz stamina = karartma efekti
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = canAfford ? 1f : 0.5f;
+        }
     }
 
     // ------------------- DRAG & DROP -------------------
     public void OnBeginDrag(PointerEventData eventData)
     {
         if(!GameManager.Instance.isPlayerTurn || Time.timeScale == 0f) return;
+        
+        // Stamina kontrolü - sürükleme başlamadan önce
+        if (!GameManager.Instance.CanAffordCard(cardData))
+        {
+            Debug.Log($"Yetersiz stamina! {cardData.cardName} için {cardData.staminaCost} stamina gerekli.");
+            return;
+        }
 
         originalPosition = rectTransform.anchoredPosition;
         originalParent = transform.parent;
@@ -46,12 +73,24 @@ public class CardDisplay : MonoBehaviour,
     public void OnDrag(PointerEventData eventData)
     {
         if(!GameManager.Instance.isPlayerTurn || Time.timeScale == 0f) return;
+        
+        // Stamina kontrolü
+        if (!GameManager.Instance.CanAffordCard(cardData)) return;
+        
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         if (!GameManager.Instance.isPlayerTurn || Time.timeScale == 0f) return;
+        
+        // Stamina kontrolü
+        if (!GameManager.Instance.CanAffordCard(cardData))
+        {
+            UpdateAffordability();
+            return;
+        }
+        
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = true;
 
@@ -62,6 +101,7 @@ public class CardDisplay : MonoBehaviour,
 
         transform.SetParent(originalParent);
         rectTransform.anchoredPosition = originalPosition;
+        UpdateAffordability();
     }
 
     public void OnPointerEnter(PointerEventData eventData)
