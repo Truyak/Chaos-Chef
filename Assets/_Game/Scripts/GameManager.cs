@@ -62,6 +62,19 @@ public class GameManager : MonoBehaviour
     [Header("AI System")]
     private CustomerAI customerAI;
 
+    [Header("Customer System")]
+    private CustomerSpawner customerSpawner;
+    private CustomerData currentCustomer;
+    private int customerExtraTurnCounter = 0; // Food Blogger için
+    private int currentCustomerIndex = 0; // Progression için
+    private bool lastMatchWon = false;
+
+    [Header("Waiter (Player) Animation")]
+    public Animator waiterAnimator; // Inspector'dan ata
+
+    [Header("Game Over Panel")]
+    public Button continueButton; // Next Enemy / Try Again butonu
+    public TextMeshProUGUI continueButtonText;
 
     private void Awake()
     {
@@ -90,9 +103,30 @@ public class GameManager : MonoBehaviour
             customerAI.LoadQTable();
         }
 
+        // Customer Spawner setup
+        customerSpawner = CustomerSpawner.Instance;
+        if (customerSpawner != null)
+        {
+            customerSpawner.OnCustomerSpawned += OnCustomerSpawned;
+        }
+
         SetupImages();
         SpawnDeck();
         UpdateTurnText();
+    }
+
+    /// <summary>
+    /// Yeni müşteri spawn edildiğinde çağrılır
+    /// </summary>
+    private void OnCustomerSpawned(CustomerData customer)
+    {
+        currentCustomer = customer;
+        customerHP = customer.maxHP;
+        maxHP = Mathf.Max(maxHP, customer.maxHP);
+        customerHPSlider.maxValue = customer.maxHP;
+        customerExtraTurnCounter = 0;
+        UpdateHPUI();
+        Debug.Log($"[GameManager] {customer.customerName} hazır! HP: {customerHP}");
     }
 
     void SetupImages()
@@ -179,6 +213,10 @@ public class GameManager : MonoBehaviour
         playerStamina -= card.staminaCost;
         UpdateStaminaUI();
 
+        // Waiter Attack animasyonu
+        if (waiterAnimator != null)
+            waiterAnimator.SetTrigger("Attack");
+
         // Heal kartı kontrolü
         if (card.isHeal)
         {
@@ -189,6 +227,10 @@ public class GameManager : MonoBehaviour
         {
             float damage = card.baseDamage * customerDebuffMultiplier;
             customerHP -= damage;
+            
+            // Müşteri Hit animasyonu
+            if (customerSpawner != null)
+                customerSpawner.PlayAnimation("Hit");
         }
 
         switch (card.effectType)
@@ -203,6 +245,9 @@ public class GameManager : MonoBehaviour
                 customerStunTurns += card.duration;
                 customerStunImage.gameObject.SetActive(true);
                 AudioManager.Instance.PlayStun();
+                // Müşteri Stun animasyonu
+                if (customerSpawner != null)
+                    customerSpawner.PlayAnimation("Stun");
                 break;
 
             case "Debuff":
@@ -344,9 +389,17 @@ public class GameManager : MonoBehaviour
             int actionIndex = customerAI.SelectAction(state);
             AIAction action = customerAI.ExecuteAction(actionIndex);
 
+            // Müşteri Attack animasyonu
+            if (customerSpawner != null)
+                customerSpawner.PlayAnimation("Attack");
+
             // Aksiyonu uygula
             float damage = action.damage * playerDebuffMultiplier;
             playerHP -= damage;
+
+            // Waiter Hit animasyonu (hasar aldığında)
+            if (damage > 0 && waiterAnimator != null)
+                waiterAnimator.SetTrigger("Hit");
 
             switch (action.effectType)
             {
@@ -354,6 +407,9 @@ public class GameManager : MonoBehaviour
                     playerStunTurns += action.effectDuration;
                     playerStunImage.gameObject.SetActive(true);
                     AudioManager.Instance.PlayAllergy();
+                    // Waiter Stun animasyonu
+                    if (waiterAnimator != null)
+                        waiterAnimator.SetTrigger("Stun");
                     break;
                 case "Poison":
                     playerPoisonStacks += action.effectDuration;
@@ -456,25 +512,59 @@ public class GameManager : MonoBehaviour
     {
         if (customerHP <= 0)
         {
+            lastMatchWon = true;
             winLosePanel.SetActive(true);
-            winLoseText.text = $"Tebrikler!\n${(int)playerHP} bahsis kaptin!";
+            
+            // Son müşteri mi kontrol et
+            bool isLastCustomer = customerSpawner != null && 
+                currentCustomerIndex >= customerSpawner.availableCustomers.Length - 1;
+            
+            if (isLastCustomer)
+                winLoseText.text = $"TEBRIKLER!\nTum musterileri yendin!\n${(int)playerHP} bahsis!";
+            else
+                winLoseText.text = $"Tebrikler!\n${(int)playerHP} bahsis kaptin!";
+            
+            // Buton metnini güncelle
+            if (continueButtonText != null)
+                continueButtonText.text = isLastCustomer ? "TEKRAR OYNA" : "SONRAKI MUSTERI";
+            
             AudioManager.Instance.PlayWin();
             isPlayerTurn = false;
+            
+            // Müşteri yenildi animasyonu
+            if (customerSpawner != null)
+                customerSpawner.OnDefeat();
             
             // AI öğrenme: Oyuncu kazandı (AI kaybetti)
             if (customerAI != null)
                 customerAI.OnEpisodeEnd(false);
+
+            if(waiterAnimator != null)
+                waiterAnimator.SetTrigger("Victory");
         }
         else if (playerHP <= 0)
         {
+            lastMatchWon = false;
             winLosePanel.SetActive(true);
             winLoseText.text = "0$ bahsis...\nMusteri kazandi!";
+            
+            // Buton metnini güncelle
+            if (continueButtonText != null)
+                continueButtonText.text = "TEKRAR DENE";
+            
             AudioManager.Instance.PlayLose();
             isPlayerTurn = false;
+            
+            // Müşteri kazandı animasyonu
+            if (customerSpawner != null)
+                customerSpawner.PlayAnimation("Victory");
             
             // AI öğrenme: AI kazandı
             if (customerAI != null)
                 customerAI.OnEpisodeEnd(true);
+
+            if(waiterAnimator != null) 
+                waiterAnimator.SetTrigger("Defeat");
         }
     }
 
@@ -486,5 +576,74 @@ public class GameManager : MonoBehaviour
     public bool CanAffordCard(CardData card)
     {
         return playerStamina >= card.staminaCost;
+    }
+
+    /// <summary>
+    /// Continue butonu - kazanınca sonraki, kaybedince tekrar
+    /// </summary>
+    public void OnContinueButtonClicked()
+    {
+        if (lastMatchWon)
+        {
+            // Kazandı - Sonraki müşteriye geç
+            currentCustomerIndex++;
+            
+            // Son müşteriyi de yendiyse başa dön
+            if (customerSpawner != null && currentCustomerIndex >= customerSpawner.availableCustomers.Length)
+                currentCustomerIndex = 0;
+        }
+        else
+        {
+            // Kaybetti - Bir önceki müşteriye düş (en az 0)
+            currentCustomerIndex = Mathf.Max(0, currentCustomerIndex - 1);
+        }
+        
+        // Yeni maç başlat
+        StartNewMatch();
+    }
+
+    /// <summary>
+    /// Yeni maç başlatır - tüm değerleri sıfırlar
+    /// </summary>
+    private void StartNewMatch()
+    {
+        // HP sıfırla
+        playerHP = maxHP;
+        
+        // Stamina sıfırla
+        playerStamina = maxStamina;
+        UpdateStaminaUI();
+        
+        // Status efektleri sıfırla
+        playerPoisonStacks = 0;
+        playerStunTurns = 0;
+        playerDebuffTurns = 0;
+        playerDebuffMultiplier = 1f;
+        customerPoisonStacks = 0;
+        customerStunTurns = 0;
+        customerDebuffTurns = 0;
+        customerDebuffMultiplier = 1f;
+        
+        // Status UI'larını gizle
+        if (playerStunImage != null) playerStunImage.SetActive(false);
+        if (playerDebuffImage != null) playerDebuffImage.SetActive(false);
+        if (playerPoisonImage != null) playerPoisonImage.SetActive(false);
+        if (customerStunImage != null) customerStunImage.SetActive(false);
+        if (customerDebuffImage != null) customerDebuffImage.SetActive(false);
+        if (customerPoisonImage != null) customerPoisonImage.SetActive(false);
+        
+        // Yeni müşteriyi spawn et
+        if (customerSpawner != null)
+            customerSpawner.SpawnCustomerByIndex(currentCustomerIndex);
+        
+        // Panel kapat, oyunu başlat
+        winLosePanel.SetActive(false);
+        isPlayerTurn = true;
+        UpdateHPUI();
+        UpdateTurnText();
+        
+        // Animasyonları Idle'a döndür
+        if (waiterAnimator != null)
+            waiterAnimator.SetTrigger("Idle");
     }
 }

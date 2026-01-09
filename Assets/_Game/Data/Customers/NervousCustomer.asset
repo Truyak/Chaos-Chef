@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a31e95da1faa448a6057353bff520e, type: 3}
+  m_Name: NervousCustomer
+  m_EditorClassIdentifier: Assembly-CSharp::CustomerData
+  customerName: Stan
+  customerType: 0
+  modelPrefab: {fileID: 8914342166945701084, guid: 6a5a6fcb5672e93408e88e89f9a605f8, type: 3}
+  animatorController: {fileID: 9100000, guid: a00b465d0d302be498f77820d1bbc29a, type: 2}
+  maxHP: 80
+  damageMultiplier: 1
+  behaviorProfile: 0
+  stunChance: 0.2
+  poisonChance: 0.2
+  debuffChance: 0.2
+  hasExtraTurn: 0
+  extraTurnInterval: 3
+  description: Nervous Customer

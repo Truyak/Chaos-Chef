@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a31e95da1faa448a6057353bff520e, type: 3}
+  m_Name: AngryCustomer
+  m_EditorClassIdentifier: Assembly-CSharp::CustomerData
+  customerName: Frank
+  customerType: 1
+  modelPrefab: {fileID: 8535197455183811466, guid: f951d67ece2d7c14f94eb49808024060, type: 3}
+  animatorController: {fileID: 9100000, guid: ce703192f742657429fad70091f1d0ba, type: 2}
+  maxHP: 100
+  damageMultiplier: 1
+  behaviorProfile: 1
+  stunChance: 0.2
+  poisonChance: 0.2
+  debuffChance: 0.2
+  hasExtraTurn: 0
+  extraTurnInterval: 3
+  description: Angry Customer

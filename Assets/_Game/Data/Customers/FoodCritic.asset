@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87a31e95da1faa448a6057353bff520e, type: 3}
+  m_Name: FoodCritic
+  m_EditorClassIdentifier: Assembly-CSharp::CustomerData
+  customerName: Alexi
+  customerType: 2
+  modelPrefab: {fileID: 5489404680259428762, guid: 4f11aa9324913834eaf8a6f77e481567, type: 3}
+  animatorController: {fileID: 9100000, guid: 166320495ad594a42b77156973ecf679, type: 2}
+  maxHP: 120
+  damageMultiplier: 1
+  behaviorProfile: 3
+  stunChance: 0.2
+  poisonChance: 0.2
+  debuffChance: 0.2
+  hasExtraTurn: 0
+  extraTurnInterval: 3
+  description: Food Critic
