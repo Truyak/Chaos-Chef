@@ -16,6 +16,7 @@ MonoBehaviour:
   customerType: 0
   modelPrefab: {fileID: 8914342166945701084, guid: 6a5a6fcb5672e93408e88e89f9a605f8, type: 3}
   animatorController: {fileID: 9100000, guid: a00b465d0d302be498f77820d1bbc29a, type: 2}
+  icon: {fileID: 6690533144590667255, guid: 9c0699ca9c354044db026b30a5a939d2, type: 3}
   maxHP: 80
   damageMultiplier: 1
   behaviorProfile: 0

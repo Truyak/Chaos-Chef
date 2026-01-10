@@ -57,7 +57,7 @@ public class CustomerAI : MonoBehaviour
             new AIAction("Hesap Şoku", 0f, "Debuff", 2, 2),              // 4: Debuff, 2 tur cooldown
             new AIAction("Sosyal Medya Tehdidi", 20f, "Poison", 1, 1),   // 5: Hasar + kısa poison
             new AIAction("Yöneticiyi Çağırma", 30f, "Damage", 0, 2),       // 6: Çok yüksek hasar, 2 tur cooldown
-            new AIAction("Pasif Agresif Bakış", 8f, "Debuff", 1, 0),     // 7: Düşük hasar + kısa debuff
+            new AIAction("Pasif Agresif Bakış", 8f, "Debuff", 1, 1),     // 7: Düşük hasar + kısa debuff
         };
     }
 
@@ -69,14 +69,14 @@ public class CustomerAI : MonoBehaviour
     {
         int state = 0;
         
-        // Player HP: 0=düşük(≤30%), 1=orta(31-70%), 2=yüksek(>70%)
+        // Player HP: 4 seviye (0-25%, 25-50%, 50-75%, 75-100%)
         float playerHPRatio = playerHP / maxHP;
-        int playerHPState = playerHPRatio <= 0.3f ? 0 : (playerHPRatio <= 0.7f ? 1 : 2);
+        int playerHPState = Mathf.Clamp((int)(playerHPRatio * 4), 0, 3);
         state |= playerHPState;
         
-        // Customer HP: aynı mantık
+        // Customer HP: 4 seviye
         float customerHPRatio = customerHP / maxHP;
-        int customerHPState = customerHPRatio <= 0.3f ? 0 : (customerHPRatio <= 0.7f ? 1 : 2);
+        int customerHPState = Mathf.Clamp((int)(customerHPRatio * 4), 0, 3);
         state |= (customerHPState << 2);
         
         // Status effects
@@ -226,13 +226,13 @@ public class CustomerAI : MonoBehaviour
         switch (effectApplied)
         {
             case "Stun":
-                reward += 15f;
+                reward += 25f; // Stun çok değerli
                 break;
             case "Poison":
-                reward += 8f;
+                reward += 15f; // DoT etkili
                 break;
             case "Debuff":
-                reward += 5f;
+                reward += 12f; // Hasar azaltma
                 break;
         }
 

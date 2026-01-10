@@ -72,6 +72,7 @@
     <Compile Include="Assets\_Game\Scripts\Customer\CustomerSpawner.cs" />
     <Compile Include="Assets\_Game\Scripts\MainMenuManager.cs" />
     <Compile Include="Assets\_Game\Scripts\Customer\CustomerData.cs" />
+    <Compile Include="Assets\_Game\Scripts\UI\TurnTimelineUI.cs" />
     <Compile Include="Assets\_Game\Scripts\CardDisplay.cs" />
     <Compile Include="Assets\_Game\Scripts\AI\AIAction.cs" />
   </ItemGroup>

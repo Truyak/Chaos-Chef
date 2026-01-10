@@ -16,6 +16,7 @@ MonoBehaviour:
   customerType: 3
   modelPrefab: {fileID: 5554884825164899085, guid: 4d8407c71449e964abadf43d2d0c4df2, type: 3}
   animatorController: {fileID: 9100000, guid: 39fb4f3f94566ec498e8a502477286ff, type: 2}
+  icon: {fileID: -3939363850074390935, guid: 63d65a53c0a3f0a47ac4fa4434a45aaa, type: 3}
   maxHP: 100
   damageMultiplier: 1
   behaviorProfile: 2
@@ -24,4 +25,4 @@ MonoBehaviour:
   debuffChance: 0.2
   hasExtraTurn: 1
   extraTurnInterval: 3
-  description: "M\xFC\u015Fteri a\xE7\u0131klamas\u0131..."
+  description: Food Blogger

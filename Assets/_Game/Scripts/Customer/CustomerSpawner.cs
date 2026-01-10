@@ -35,6 +35,7 @@ public class CustomerSpawner : MonoBehaviour
     private void Start()
     {
         SpawnCustomerByIndex(0); // İlk müşteriyi spawn et
+        GameManager.Instance.OnCustomerSpawned(currentCustomerData);
     }
     /// <summary>
     /// Belirli bir müşteri tipini spawn eder

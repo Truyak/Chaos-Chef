@@ -225,16 +225,56 @@ public class AITrainer : MonoBehaviour
 
         trainingPlayer.OnTurnStart();
 
-        // Kart seç ve oyna
-        CardData card = trainingPlayer.SelectCard(
-            simPlayerHP, simCustomerHP, simMaxHP,
-            simCustomerStunTurns, simCustomerPoisonStacks
-        );
-
-        if (card != null)
+        // Multi-card turn kısıtlaması: Eğitim dengesi için şimdilik 1 kart
+        int cardsPlayedThisTurn = 0;
+        int maxCardsPerTurn = 1; // AI öğrenene kadar tek kart simülasyonu
+        
+        while (cardsPlayedThisTurn < maxCardsPerTurn && simCustomerHP > 0)
         {
+            // Kart seç
+            CardData card = trainingPlayer.SelectCard(
+                simPlayerHP, simCustomerHP, simMaxHP,
+                simCustomerStunTurns, simCustomerPoisonStacks
+            );
+
+            if (card == null)
+            {
+                // Simüle kart dene
+                if (!trainingPlayer.HasRealCards() && trainingPlayer.GetCurrentStamina() > 0)
+                {
+                    var (damage, effect, duration) = trainingPlayer.GetSimulatedAction(
+                        simCustomerHP, simMaxHP,
+                        simCustomerStunTurns, simCustomerPoisonStacks
+                    );
+
+                    if (damage > 0 || effect != "None")
+                    {
+                        // Oyuncunun hasarı playerDebuffMultiplier ile çarpılır
+                        simCustomerHP -= damage * simPlayerDebuffMultiplier;
+
+                        switch (effect)
+                        {
+                            case "Poison":
+                                simCustomerPoisonStacks += duration;
+                                break;
+                            case "Stun":
+                                simCustomerStunTurns += duration;
+                                break;
+                            case "Debuff":
+                                simCustomerDebuffMultiplier = 0.4f;
+                                simCustomerDebuffTurns = duration;
+                                break;
+                        }
+                        cardsPlayedThisTurn++;
+                        continue;
+                    }
+                }
+                break; // Stamina bitti veya kart yok
+            }
+
             // Gerçek kart kullan
-            float damage = card.baseDamage * simCustomerDebuffMultiplier;
+            // Oyuncunun hasarı playerDebuffMultiplier ile çarpılır
+            float cardDamage = card.baseDamage * simPlayerDebuffMultiplier;
             
             if (card.isHeal)
             {
@@ -242,7 +282,7 @@ public class AITrainer : MonoBehaviour
             }
             else
             {
-                simCustomerHP -= damage;
+                simCustomerHP -= cardDamage;
             }
 
             switch (card.effectType)
@@ -258,30 +298,8 @@ public class AITrainer : MonoBehaviour
                     simCustomerDebuffTurns = card.duration;
                     break;
             }
-        }
-        else
-        {
-            // Simüle kart kullan (gerçek kart yoksa)
-            var (damage, effect, duration) = trainingPlayer.GetSimulatedAction(
-                simCustomerHP, simMaxHP,
-                simCustomerStunTurns, simCustomerPoisonStacks
-            );
-
-            simCustomerHP -= damage * simCustomerDebuffMultiplier;
-
-            switch (effect)
-            {
-                case "Poison":
-                    simCustomerPoisonStacks += duration;
-                    break;
-                case "Stun":
-                    simCustomerStunTurns += duration;
-                    break;
-                case "Debuff":
-                    simCustomerDebuffMultiplier = 0.4f;
-                    simCustomerDebuffTurns = duration;
-                    break;
-            }
+            
+            cardsPlayedThisTurn++;
         }
     }
 
@@ -319,8 +337,8 @@ public class AITrainer : MonoBehaviour
         int actionIndex = customerAI.SelectAction(state);
         AIAction action = customerAI.ExecuteAction(actionIndex);
 
-        // Aksiyonu uygula
-        float damage = action.damage * simPlayerDebuffMultiplier;
+        // Aksiyonu uygula - AI'ın hasarı customerDebuffMultiplier ile azaltılır
+        float damage = action.damage * simCustomerDebuffMultiplier;
         simPlayerHP -= damage;
         totalTurns++;
 

@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI winLoseText;
     public GameObject winLosePanel;
     public TextMeshProUGUI turnText;
+    public TurnTimelineUI turnTimeline; // [NEW] Timeline referansı
     public Button AITurnButton;
     public Sprite StunSprite;
     public Sprite DebuffSprite;
@@ -65,7 +66,7 @@ public class GameManager : MonoBehaviour
     [Header("Customer System")]
     private CustomerSpawner customerSpawner;
     private CustomerData currentCustomer;
-    private int customerExtraTurnCounter = 0; // Food Blogger için
+    private int customerTurnCounter = 0; // Food Blogger extra turn için
     private int currentCustomerIndex = 0; // Progression için
     private bool lastMatchWon = false;
 
@@ -89,7 +90,7 @@ public class GameManager : MonoBehaviour
         customerHPSlider.maxValue = maxHP;
         UpdateHPUI();
         winLosePanel.SetActive(false);
-        AITurnButton.interactable = false;
+        AITurnButton.interactable = true;
 
         // Stamina setup
         playerStamina = maxStamina;
@@ -113,18 +114,31 @@ public class GameManager : MonoBehaviour
         SetupImages();
         SpawnDeck();
         UpdateTurnText();
+        UpdateTimeline(); // [NEW] Başlangıçta güncelle
     }
+
 
     /// <summary>
     /// Yeni müşteri spawn edildiğinde çağrılır
     /// </summary>
-    private void OnCustomerSpawned(CustomerData customer)
+    public void OnCustomerSpawned(CustomerData customer)
     {
+        Debug.Log($"[GameManager] Yeni müşteri spawn edildi: {customer.customerName}");
         currentCustomer = customer;
         customerHP = customer.maxHP;
         maxHP = Mathf.Max(maxHP, customer.maxHP);
         customerHPSlider.maxValue = customer.maxHP;
-        customerExtraTurnCounter = 0;
+        
+        Debug.Log(turnTimeline + "? " + customer.icon);
+        // [NEW] Timeline ikonunu güncelle
+        if (turnTimeline != null && customer.icon != null)
+        {
+            turnTimeline.SetCustomerIcon(customer.icon);
+            Debug.Log($"[GameManager] Timeline ikonu {customer.customerName} olarak ayarlandı.");
+            // Ikon değiştiği için timeline'ı hemen güncelle
+            UpdateTimeline();
+        }
+
         UpdateHPUI();
         Debug.Log($"[GameManager] {customer.customerName} hazır! HP: {customerHP}");
     }
@@ -225,8 +239,11 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            float damage = card.baseDamage * customerDebuffMultiplier;
+            // Oyuncu debuff yediğinde (playerDebuffMultiplier < 1), oyuncunun verdiği hasar azalır
+            float damage = Mathf.Round(card.baseDamage * playerDebuffMultiplier);
             customerHP -= damage;
+            
+            Debug.Log($"[PlayCard] {card.cardName}: {card.baseDamage} base × {playerDebuffMultiplier} debuff = {damage} gerçek hasar. Customer HP: {customerHP}");
             
             // Müşteri Hit animasyonu
             if (customerSpawner != null)
@@ -248,6 +265,7 @@ public class GameManager : MonoBehaviour
                 // Müşteri Stun animasyonu
                 if (customerSpawner != null)
                     customerSpawner.PlayAnimation("Stun");
+                UpdateTimeline(); // [NEW] Stun değişti, timeline güncelle
                 break;
 
             case "Debuff":
@@ -274,28 +292,70 @@ public class GameManager : MonoBehaviour
         UpdateHPUI();
         CheckWinLose();
 
+        // NOT: Artık burada AIPlayerTurn() çağrılmıyor!
+        // Oyuncu istediği kadar kart oynayabilir, sonra "Turu Bitir" butonuna basar
+        Debug.Log($"[PlayCard] {card.cardName} oynandı. Kalan stamina: {playerStamina}");
+    }
+
+    /// <summary>
+    /// Oyuncu turunu bitirir - "Turu Bitir" butonuna bağlanacak
+    /// </summary>
+    public void EndPlayerTurn()
+    {
+        if (!isPlayerTurn) return;
+        
+        Debug.Log("[EndPlayerTurn] Oyuncu turu bitti, AI sırası.");
         AIPlayerTurn();
     }
 
     public void AIPlayerTurn()
     {
         isPlayerTurn = false;
-        AITurnButton.interactable = false;
+        AITurnButton.interactable = true;
 
         HandleTurnStart(false);
     }
 
     public void FinishCustomerTurn()
     {
+        // Food Blogger extra turn kontrolü
+        if (currentCustomer != null && currentCustomer.hasExtraTurn)
+        {
+            customerTurnCounter++;
+            
+            // Her X turda bir ekstra aksiyon
+            if (customerTurnCounter % currentCustomer.extraTurnInterval == 0)
+            {
+                Debug.Log($"[Food Blogger] EKSTRA TUR! ({customerTurnCounter}. tur)");
+                // Ekstra aksiyon yap ama sonra oyuncuya geç
+                StartCoroutine(ExtraTurnAction());
+                return;
+            }
+        }
+        
         isPlayerTurn = true;
-        AITurnButton.interactable = false;
 
+        HandleTurnStart(true);
+    }
+
+    private System.Collections.IEnumerator ExtraTurnAction()
+    {
+        yield return new WaitForSeconds(0.5f);
+        
+        // Ekstra saldırı yap
+        CustomerAction();
+        
+        // Sonra normal şekilde oyuncuya geç
+        yield return new WaitForSeconds(0.5f);
+        isPlayerTurn = true;
+        AITurnButton.interactable = true;
         HandleTurnStart(true);
     }
 
     void HandleTurnStart(bool isPlayerNext)
     {
         UpdateTurnText();
+        UpdateTimeline(); // [NEW] Tur değişti, timeline güncelle
         if (Time.timeScale == 0f) return;
 
         if (isPlayerNext)
@@ -363,10 +423,13 @@ public class GameManager : MonoBehaviour
                 return;
             }
 
+            // Müşteri stunned değilse, saldırısını yapsın
             if (customerHP > 0)
             {
                 isPlayerTurn = false;
                 AITurnButton.interactable = true;
+                CustomerAction(); // AI aksiyonunu çağır!
+                return; // CustomerAction zaten FinishCustomerTurn() çağırıyor
             }
         }
 
@@ -393,8 +456,8 @@ public class GameManager : MonoBehaviour
             if (customerSpawner != null)
                 customerSpawner.PlayAnimation("Attack");
 
-            // Aksiyonu uygula
-            float damage = action.damage * playerDebuffMultiplier;
+            // Aksiyonu uygula - AI'ın hasarı customerDebuffMultiplier ile azaltılır
+            float damage = Mathf.Round(action.damage * customerDebuffMultiplier);
             playerHP -= damage;
 
             // Waiter Hit animasyonu (hasar aldığında)
@@ -410,6 +473,7 @@ public class GameManager : MonoBehaviour
                     // Waiter Stun animasyonu
                     if (waiterAnimator != null)
                         waiterAnimator.SetTrigger("Stun");
+                    UpdateTimeline(); // [NEW] Stun değişti, timeline güncelle
                     break;
                 case "Poison":
                     playerPoisonStacks += action.effectDuration;
@@ -448,16 +512,17 @@ public class GameManager : MonoBehaviour
             switch (actionId)
             {
                 case 0:
-                    playerHP -= 25f * playerDebuffMultiplier;
+                    playerHP -= 25f * customerDebuffMultiplier;
                     AudioManager.Instance.PlayComplaints();
                     Debug.Log("Musteri: sikayet firtinasi! 25 hasar!");
                     break;
                 case 1:
                     playerStunTurns += 1;
                     playerStunImage.gameObject.SetActive(true);
-                    playerHP -= 15f * playerDebuffMultiplier;
+                    playerHP -= 15f * customerDebuffMultiplier;
                     AudioManager.Instance.PlayAllergy();
                     Debug.Log("Musteri: Alerji tuzagi! Stun +15 hasar!");
+                    UpdateTimeline(); // [NEW] Fallback stun
                     break;
                 case 2:
                     playerPoisonStacks += 2;
@@ -506,6 +571,14 @@ public class GameManager : MonoBehaviour
     {
         if (turnText != null)
             turnText.text = isPlayerTurn ? "OYUNCU SIRASI" : "MUSTERI SIRASI";
+    }
+
+    void UpdateTimeline()
+    {
+        if (turnTimeline != null)
+        {
+            turnTimeline.UpdateTimeline(isPlayerTurn, playerStunTurns, customerStunTurns);
+        }
     }
 
     void CheckWinLose()
@@ -623,6 +696,7 @@ public class GameManager : MonoBehaviour
         customerStunTurns = 0;
         customerDebuffTurns = 0;
         customerDebuffMultiplier = 1f;
+        customerTurnCounter = 0; // Food Blogger için tur sayacı sıfırla
         
         // Status UI'larını gizle
         if (playerStunImage != null) playerStunImage.SetActive(false);
@@ -645,5 +719,7 @@ public class GameManager : MonoBehaviour
         // Animasyonları Idle'a döndür
         if (waiterAnimator != null)
             waiterAnimator.SetTrigger("Idle");
+
+        UpdateTimeline(); // [FIX] isPlayerTurn ayarlandıktan sonra timeline'ı güncelle
     }
 }

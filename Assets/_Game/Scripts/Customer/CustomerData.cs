@@ -13,6 +13,7 @@ public class CustomerData : ScriptableObject
     [Header("Görsel")]
     public GameObject modelPrefab;
     public RuntimeAnimatorController animatorController;
+    public Sprite icon; // [NEW] Müşteri ikonu (Timeline için)
     
     [Header("Stats")]
     public float maxHP = 100f;

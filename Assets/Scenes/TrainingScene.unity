@@ -805,7 +805,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AITrainer
   autoStartTraining: 1
-  targetEpisodes: 100000
+  targetEpisodes: 25000
   saveInterval: 100
   playerDeck:
   - {fileID: 11400000, guid: ddf29547680e3c64a83d3d2b47920093, type: 2}

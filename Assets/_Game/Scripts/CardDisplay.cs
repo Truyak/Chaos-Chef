@@ -10,12 +10,15 @@ public class CardDisplay : MonoBehaviour,
     [Header("References")]
     public CardData cardData;
     public Image artworkImage;
+    public TextMeshProUGUI staminaCostText; // Sol üst köşede stamina maliyeti
+    public Image cardBackground; // Karartma için ana kart görseli
 
     private Canvas canvas;
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
     private Vector2 originalPosition;
     private Transform originalParent;
+    private bool isDragging = false;
 
     private void Awake()
     {
@@ -29,40 +32,59 @@ public class CardDisplay : MonoBehaviour,
     {
         cardData = data;
         artworkImage.sprite = data.artwork;
+        
+        // Stamina maliyeti göster
+        if (staminaCostText != null)
+            staminaCostText.text = data.staminaCost.ToString();
+        
         UpdateAffordability();
     }
 
     private void Update()
     {
-        // Her tur başında stamina değişebilir, görsel güncelle
-        UpdateAffordability();
+        // Her frame stamina değişebilir, görsel güncelle
+        if (!isDragging)
+            UpdateAffordability();
     }
 
     private void UpdateAffordability()
     {
-        if (cardData == null) return;
+        if (cardData == null || GameManager.Instance == null) return;
         
         bool canAfford = GameManager.Instance.CanAffordCard(cardData);
         
-        // Yetersiz stamina = karartma efekti
+        // Yetersiz stamina = tüm kartı karart
         if (canvasGroup != null)
         {
-            canvasGroup.alpha = canAfford ? 1f : 0.5f;
+            canvasGroup.alpha = canAfford ? 1f : 0.4f;
+        }
+        
+        // Ek olarak arkaplan rengini de karartabiliriz
+        if (cardBackground != null)
+        {
+            cardBackground.color = canAfford ? Color.white : new Color(0.5f, 0.5f, 0.5f, 1f);
         }
     }
 
     // ------------------- DRAG & DROP -------------------
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if(!GameManager.Instance.isPlayerTurn || Time.timeScale == 0f) return;
+        Debug.Log($"[CardDisplay] OnBeginDrag başladı: {cardData?.cardName}");
+        
+        if(!GameManager.Instance.isPlayerTurn || Time.timeScale == 0f)
+        {
+            Debug.Log("[CardDisplay] Oyuncu sırası değil veya oyun durdu.");
+            return;
+        }
         
         // Stamina kontrolü - sürükleme başlamadan önce
         if (!GameManager.Instance.CanAffordCard(cardData))
         {
-            Debug.Log($"Yetersiz stamina! {cardData.cardName} için {cardData.staminaCost} stamina gerekli.");
+            Debug.Log($"[CardDisplay] Yetersiz stamina! {cardData.cardName} için {cardData.staminaCost} gerekli.");
             return;
         }
 
+        isDragging = true;
         originalPosition = rectTransform.anchoredPosition;
         originalParent = transform.parent;
         canvasGroup.alpha = 0.7f;
@@ -72,36 +94,54 @@ public class CardDisplay : MonoBehaviour,
 
     public void OnDrag(PointerEventData eventData)
     {
+        if(!isDragging) return;
         if(!GameManager.Instance.isPlayerTurn || Time.timeScale == 0f) return;
-        
-        // Stamina kontrolü
-        if (!GameManager.Instance.CanAffordCard(cardData)) return;
         
         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!GameManager.Instance.isPlayerTurn || Time.timeScale == 0f) return;
+        Debug.Log($"[CardDisplay] OnEndDrag: {cardData?.cardName}, isDragging: {isDragging}");
         
-        // Stamina kontrolü
-        if (!GameManager.Instance.CanAffordCard(cardData))
+        if (!isDragging) 
         {
-            UpdateAffordability();
+            Debug.Log("[CardDisplay] Drag başlamamıştı, return.");
             return;
         }
         
-        canvasGroup.alpha = 1f;
+        isDragging = false;
         canvasGroup.blocksRaycasts = true;
 
-        if (eventData.pointerEnter != null && eventData.pointerEnter.CompareTag("PlayZone"))
+        bool cardPlayed = false;
+        
+        if (eventData.pointerEnter != null)
         {
-            GameManager.Instance.PlayCard(this);
+            Debug.Log($"[CardDisplay] pointerEnter: {eventData.pointerEnter.name}, tag: {eventData.pointerEnter.tag}");
+            
+            if (eventData.pointerEnter.CompareTag("PlayZone"))
+            {
+                Debug.Log("[CardDisplay] PlayZone'a bırakıldı, PlayCard çağrılıyor...");
+                GameManager.Instance.PlayCard(this);
+                cardPlayed = true;
+            }
+        }
+        else
+        {
+            Debug.Log("[CardDisplay] pointerEnter NULL!");
         }
 
+        // Kartı eski yerine döndür
         transform.SetParent(originalParent);
         rectTransform.anchoredPosition = originalPosition;
+        
+        // Affordability güncelle
         UpdateAffordability();
+        
+        if (!cardPlayed)
+        {
+            Debug.Log("[CardDisplay] Kart oynanmadı, eski yerine döndü.");
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
