@@ -34,7 +34,14 @@ public class CustomerSpawner : MonoBehaviour
     }
     private void Start()
     {
-        SpawnCustomerByIndex(0); // İlk müşteriyi spawn et
+        // SaveSystem'den level al (1-indexed -> 0-indexed)
+        int levelIndex = SaveSystem.CurrentLevel - 1;
+        
+        // Geçerli index kontrolü
+        if (levelIndex < 0) levelIndex = 0;
+        if (levelIndex >= availableCustomers.Length) levelIndex = availableCustomers.Length - 1;
+
+        SpawnCustomerByIndex(levelIndex);
         GameManager.Instance.OnCustomerSpawned(currentCustomerData);
     }
     /// <summary>

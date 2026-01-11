@@ -66,6 +66,7 @@
     <Compile Include="Assets\_Game\Scripts\AI\CustomerAI.cs" />
     <Compile Include="Assets\_Game\Scripts\UIManager.cs" />
     <Compile Include="Assets\_Game\Scripts\AI\AITrainer.cs" />
+    <Compile Include="Assets\_Game\Scripts\AnimationTimings.cs" />
     <Compile Include="Assets\_Game\Scripts\OptionsManager.cs" />
     <Compile Include="Assets\_Game\Scripts\GameManager.cs" />
     <Compile Include="Assets\_Game\Scripts\AI\TrainingPlayer.cs" />
@@ -73,8 +74,10 @@
     <Compile Include="Assets\_Game\Scripts\MainMenuManager.cs" />
     <Compile Include="Assets\_Game\Scripts\Customer\CustomerData.cs" />
     <Compile Include="Assets\_Game\Scripts\UI\TurnTimelineUI.cs" />
+    <Compile Include="Assets\_Game\Scripts\UI\CardsMenuUI.cs" />
     <Compile Include="Assets\_Game\Scripts\CardDisplay.cs" />
     <Compile Include="Assets\_Game\Scripts\AI\AIAction.cs" />
+    <Compile Include="Assets\_Game\Scripts\SaveSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

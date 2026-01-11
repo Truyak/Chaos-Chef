@@ -69,7 +69,6 @@ public class CardDisplay : MonoBehaviour,
     // ------------------- DRAG & DROP -------------------
     public void OnBeginDrag(PointerEventData eventData)
     {
-        Debug.Log($"[CardDisplay] OnBeginDrag başladı: {cardData?.cardName}");
         
         if(!GameManager.Instance.isPlayerTurn || Time.timeScale == 0f)
         {
@@ -102,7 +101,6 @@ public class CardDisplay : MonoBehaviour,
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        Debug.Log($"[CardDisplay] OnEndDrag: {cardData?.cardName}, isDragging: {isDragging}");
         
         if (!isDragging) 
         {
@@ -117,7 +115,6 @@ public class CardDisplay : MonoBehaviour,
         
         if (eventData.pointerEnter != null)
         {
-            Debug.Log($"[CardDisplay] pointerEnter: {eventData.pointerEnter.name}, tag: {eventData.pointerEnter.tag}");
             
             if (eventData.pointerEnter.CompareTag("PlayZone"))
             {
