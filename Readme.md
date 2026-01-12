@@ -51,15 +51,6 @@ Chaos-Chef/
 └── Builds/                   # Oyun build'leri
 ```
 
-## 🎓 Akademik Proje
-
-Bu proje, yapay zeka dersi için geliştirilmiştir ve şunları göstermektedir:
-
-1. **Eğitilebilir AI**: Q-Learning algoritması ile eğitilebilen ajan
-2. **Durum-Aksiyon-Ödül Döngüsü**: Reinforcement learning temelleri
-3. **Ağırlık Dosyası**: Eğitilen modelin JSON olarak dışa aktarılması
-4. **Dinamik Yükleme**: Kullanıcı seçimine göre AI modunun değişmesi
-
 ## 🔧 Kontroller
 
 - **Kartlara tıklayın** - Kart oynamak için
