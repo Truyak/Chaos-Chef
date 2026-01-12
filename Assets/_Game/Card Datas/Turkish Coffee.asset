@@ -20,3 +20,4 @@ MonoBehaviour:
   description: A Moment of Peace
   staminaCost: 2
   isHeal: 1
+  unlockCost: 0

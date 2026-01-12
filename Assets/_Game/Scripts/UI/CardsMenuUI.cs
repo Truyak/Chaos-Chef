@@ -89,7 +89,12 @@ public class CardsMenuUI : MonoBehaviour
             TextMeshProUGUI costText = slot.transform.Find("CostText")?.GetComponent<TextMeshProUGUI>();
             GameObject equippedIndicator = slot.transform.Find("EquippedIndicator")?.gameObject;
             Button slotButton = slot.GetComponent<Button>();
-            
+            TextMeshProUGUI elixirAmount = slot.transform.Find("elixirImage")?.transform.Find("staminaCostText")?.GetComponent<TextMeshProUGUI>();
+            if (elixirAmount != null)
+                elixirAmount.text = card.staminaCost.ToString();
+            else
+                Debug.LogWarning($"[CardsMenuUI] staminaCostText not found in card slot prefab.");
+
             bool isUnlocked = card.IsUnlocked();
             bool isEquipped = SaveSystem.IsCardEquipped(card.cardName);
             

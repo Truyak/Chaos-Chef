@@ -20,3 +20,4 @@ MonoBehaviour:
   description: 4 Turns Of Regret
   staminaCost: 2
   isHeal: 0
+  unlockCost: 0

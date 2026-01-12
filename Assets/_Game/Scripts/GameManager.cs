@@ -38,6 +38,15 @@ public class GameManager : MonoBehaviour
     private GameObject customerPoisonImage;
     private GameObject playerPoisonImage;
 
+    [Header("Projectiles")]
+    public GameObject projectilePrefab;
+    public List<Sprite> actionSprites; // 0-7, CustomerAI.actions sırasıyla
+    public List<Sprite> cardSprites;   // Kart görselleri (isim eşleşmesiyle)
+    public Transform playerProjectileOrigin;
+    public Transform enemyProjectileOrigin;
+    public Transform enemyProjectileTarget;
+    public Transform playerProjectileTarget;
+
     [Header("Values")]
     public float playerHP = 100;
     public float customerHP = 100;
@@ -306,6 +315,27 @@ public class GameManager : MonoBehaviour
         // 2. Attack animasyonunun vuruş anına kadar bekle
         yield return new WaitForSeconds(AnimationTimings.ATTACK_HIT_DELAY);
 
+        // [PROJECTILE LOGIC]
+        Sprite cardProjectileSprite = GetCardSprite(card.cardName) ?? card.artwork;
+        if (projectilePrefab != null && playerProjectileOrigin != null && cardProjectileSprite != null)
+        {
+            // Projectile oluştur
+            GameObject projObj = Instantiate(projectilePrefab, playerProjectileOrigin.position, Quaternion.identity);
+            ActionProjectile proj = projObj.GetComponent<ActionProjectile>();
+            
+            bool hitCompleted = false;
+            
+            // Hedef: Müşteri (Spawner pozisyonu veya varsa icon)
+            Vector3 targetPos = playerProjectileTarget != null ? playerProjectileTarget.position + new Vector3(0,3,0) : Vector3.zero;
+            
+            proj.Setup(cardProjectileSprite, targetPos, () => {
+                hitCompleted = true;
+            });
+            
+            // Projectile çarpana kadar bekle
+            yield return new WaitUntil(() => hitCompleted);
+        }
+
         // 3. Hasar veya iyileştirme uygula
         if (card.isHeal)
         {
@@ -317,8 +347,6 @@ public class GameManager : MonoBehaviour
             // Oyuncu debuff yediğinde (playerDebuffMultiplier < 1), oyuncunun verdiği hasar azalır
             float damage = Mathf.Round(card.baseDamage * playerDebuffMultiplier);
             customerHP -= damage;
-            
-            Debug.Log($"[PlayCard] {card.cardName}: {card.baseDamage} base × {playerDebuffMultiplier} debuff = {damage} gerçek hasar. Customer HP: {customerHP}");
             
             // 4. Müşteri Hit animasyonu - SADECE Stun değilse
             if (customerSpawner != null && card.effectType != "Stun")
@@ -360,14 +388,14 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        // 6. Hit animasyonu bitene kadar bekle
-        yield return new WaitForSeconds(AnimationTimings.HIT_REACTION);
-
         // 7. Kart havuzunu güncelle ve yeni kartı görünür yap
         drawPile.Enqueue(card);
         CardData nextCard = drawPile.Dequeue();
         playedCardDisplay.Setup(nextCard);
         playedCardDisplay.gameObject.SetActive(true); // Yeni kartla görünür yap
+        
+        // 6. Hit animasyonu bitene kadar bekle
+        //yield return new WaitForSeconds(AnimationTimings.HIT_REACTION);
 
         UpdateHPUI();
         
@@ -563,6 +591,26 @@ public class GameManager : MonoBehaviour
             // 2. Attack animasyonunun vuruş anına kadar bekle
             yield return new WaitForSeconds(AnimationTimings.ATTACK_HIT_DELAY);
 
+            // [PROJECTILE LOGIC]
+            if (projectilePrefab != null && enemyProjectileOrigin != null && actionSprites != null && actionIndex < actionSprites.Count)
+            {
+                // Projectile oluştur
+                GameObject projObj = Instantiate(projectilePrefab, enemyProjectileOrigin.position, Quaternion.identity);
+                ActionProjectile proj = projObj.GetComponent<ActionProjectile>();
+                
+                bool hitCompleted = false;
+                
+                // Hedef: Waiter
+                Vector3 targetPos = enemyProjectileTarget != null ? enemyProjectileTarget.position + new Vector3(0,3,0) : Vector3.zero;
+                
+                proj.Setup(actionSprites[actionIndex], targetPos, () => {
+                    hitCompleted = true;
+                });
+                
+                // Projectile çarpana kadar bekle
+                yield return new WaitUntil(() => hitCompleted);
+            }
+
             // 3. Aksiyonu uygula - AI'ın hasarı customerDebuffMultiplier ile azaltılır
             float damage = Mathf.Round(action.damage * customerDebuffMultiplier);
             playerHP -= damage;
@@ -601,8 +649,6 @@ public class GameManager : MonoBehaviour
                     break;
             }
 
-            Debug.Log($"Musteri: {action.actionName}! {damage} hasar, Efekt: {action.effectType}");
-
             // Reward hesapla ve Q-Table güncelle
             float reward = customerAI.CalculateReward(damage, action.effectType);
             int newState = customerAI.GetStateHash(
@@ -620,7 +666,7 @@ public class GameManager : MonoBehaviour
                 customerSpawner.PlayAnimation("Attack");
 
             // 2. Attack animasyonunun vuruş anına kadar bekle
-            yield return new WaitForSeconds(AnimationTimings.ATTACK_HIT_DELAY);
+            //yield return new WaitForSeconds(AnimationTimings.ATTACK_HIT_DELAY);
 
             int actionId = Random.Range(0, 4);
             switch (actionId)
@@ -657,7 +703,7 @@ public class GameManager : MonoBehaviour
         }
 
         // 5. Hit animasyonu bitene kadar bekle
-        yield return new WaitForSeconds(AnimationTimings.HIT_REACTION);
+        //yield return new WaitForSeconds(AnimationTimings.HIT_REACTION);
 
         UpdateHPUI();
         
@@ -867,5 +913,20 @@ public class GameManager : MonoBehaviour
             waiterAnimator.SetTrigger("Idle");
 
         UpdateTimeline(); // [FIX] isPlayerTurn ayarlandıktan sonra timeline'ı güncelle
+    }
+
+    /// <summary>
+    /// Card sprite'ını isimle bulur (cardSprites listesinden)
+    /// </summary>
+    private Sprite GetCardSprite(string cardName)
+    {
+        if (cardSprites == null) return null;
+        
+        foreach (Sprite sprite in cardSprites)
+        {
+            if (sprite != null && sprite.name.ToLower().Contains(cardName.Replace(" ","").ToLower()))
+                return sprite;
+        }
+        return null;
     }
 }

@@ -10,6 +10,9 @@ public class CustomerAI : MonoBehaviour
 {
     public static CustomerAI Instance;
 
+    [Header("Pretrained Model")]
+    [SerializeField] private TextAsset pretrainedModelFile;
+
     [Header("Q-Learning Parameters")]
     [SerializeField] private float learningRate = 0.1f;      // α
     [SerializeField] private float discountFactor = 0.95f;   // γ
@@ -23,6 +26,21 @@ public class CustomerAI : MonoBehaviour
 
     // Q-Table: State hash -> Action values array
     private Dictionary<int, float[]> qTable = new Dictionary<int, float[]>();
+
+    [System.Serializable]
+    public class AIModelData
+    {
+        public int episodeCount;
+        public float explorationRate;
+        public List<QTableEntry> qTableEntries = new List<QTableEntry>();
+    }
+
+    [System.Serializable]
+    public class QTableEntry
+    {
+        public int state;
+        public float[] values;
+    }
     
     // AI Actions with cooldowns
     private AIAction[] actions;
@@ -265,6 +283,31 @@ public class CustomerAI : MonoBehaviour
     public int GetQTableSize() => qTable.Count;
     public float GetExplorationRate() => explorationRate;
 
+#if UNITY_EDITOR
+    [ContextMenu("Export Q-Table to JSON")]
+    public void ExportModelToJson()
+    {
+        AIModelData data = new AIModelData();
+        data.episodeCount = episodeCount;
+        data.explorationRate = explorationRate;
+        
+        foreach (var kvp in qTable)
+        {
+            QTableEntry entry = new QTableEntry();
+            entry.state = kvp.Key;
+            entry.values = kvp.Value;
+            data.qTableEntries.Add(entry);
+        }
+
+        string json = JsonUtility.ToJson(data, true);
+        string path = "Assets/_Game/Resources/AI/CustomerAI_Model.json";
+        
+        System.IO.File.WriteAllText(path, json);
+        UnityEditor.AssetDatabase.Refresh();
+        Debug.Log($"[CustomerAI] Model exported to {path}");
+    }
+#endif
+
     public string SerializeQTable()
     {
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -314,13 +357,45 @@ public class CustomerAI : MonoBehaviour
 
     public void LoadQTable()
     {
+        // 1. Önce PlayerPrefs kontrol et (sürdürülen eğitim/oyun)
         if (PlayerPrefs.HasKey("CustomerAI_QTable"))
         {
             string data = PlayerPrefs.GetString("CustomerAI_QTable");
             DeserializeQTable(data);
             episodeCount = PlayerPrefs.GetInt("CustomerAI_Episodes", 0);
             explorationRate = PlayerPrefs.GetFloat("CustomerAI_ExplorationRate", 0.3f);
-            Debug.Log($"[CustomerAI] Q-Table loaded! States: {qTable.Count}, Episodes: {episodeCount}");
+            Debug.Log($"[CustomerAI] Q-Table loaded from PlayerPrefs! States: {qTable.Count}, Episodes: {episodeCount}");
+        }
+        // 2. Yoksa Pretrained model yükle
+        else if (pretrainedModelFile != null)
+        {
+            LoadPretrainedModel();
+        }
+    }
+
+    public void LoadPretrainedModel()
+    {
+        if (pretrainedModelFile == null)
+        {
+            Debug.LogWarning("[CustomerAI] Pretrained model file is missing!");
+            return;
+        }
+
+        AIModelData data = JsonUtility.FromJson<AIModelData>(pretrainedModelFile.text);
+        if (data != null)
+        {
+            qTable.Clear();
+            episodeCount = data.episodeCount;
+            // Exploration rate'i modelden alabiliriz ama oyunda genelde düşük başlarız
+            // Yine de kaydettiğimiz eğitim durumundan devam etmek için alalım
+            explorationRate = data.explorationRate; 
+            
+            foreach (var entry in data.qTableEntries)
+            {
+                qTable[entry.state] = entry.values;
+            }
+            
+            Debug.Log($"[CustomerAI] Q-Table loaded from Pretrained JSON! States: {qTable.Count}, Episodes: {episodeCount}");
         }
     }
 

@@ -1,61 +1,67 @@
-# 🤵 Chaos Chef
+# Chaos Chef 🍳
 
-Bu projeyi tarayıcı üzerinden hemen oyna: 🔗 [OYUNU OYNA](https://truyak.itch.io/chaos-chef)
+![Chaos Chef Logo](chaos_chef_logo.png)
 
----
+🎮 **[Oyunu Oyna - itch.io](https://truyak.itch.io/chaos-chef)**
 
-## 🎮 Proje Hakkında
-**Chaos Chef**, Unity oyun motoru kullanılarak geliştirilmiş, stratejik öğeler barındıran sıra tabanlı bir kart oyunudur. Oyunda klasik savaşçı arketipleri yerine, zorlu bir müşteriyle başa çıkmaya çalışan bir **Garson'u** yönetiyorsunuz.
+Restoran temalı bir kart savaş oyunu! Garson olarak sinirli müşterilere karşı savunma yapın!
 
-**Amaç:** "Müşteri her zaman haklıdır" kuralını yıkmak! Müşterinin sabrını (canını) tüketerek masadan mutlu (veya pes etmiş) kalkmasını sağlamak ve kalan sabrımız kadar **Dolar ($)** cinsinden bahşiş toplamaktır.
+## 🎮 Oyun Hakkında
 
----
+**Chaos Chef**, 2D kart tabanlı bir sıra tabanlı strateji oyunudur. Oyuncu bir garson rolünde, restorana gelen zorlu müşterilere karşı yemek temalı kartlarla savaşır.
 
-## 🛠️ Oynanış ve Mekanikler
-Oyun, karşılıklı hamle sırasına (**Turn-Based**) dayanır. Kod altyapısında **Poison** (Zehir), **Stun** (Sersemletme), **Debuff** (Zayıflatma) ve **Damage** (Hasar) olmak üzere 4 temel etki tipi bulunur.
+### Oynanış
+- **Kart Oynama**: Her turda stamina harcayarak kart oynayın
+- **Stamina Yönetimi**: Her kart farklı stamina maliyetine sahip
+- **Özel Efektler**: Stun, Poison, Debuff gibi efektlerle avantaj kazanın
+- **Level Sistemi**: Müşterileri yenerek yeni seviyelere geçin
+- **Kart Koleksiyonu**: Coin kazanarak yeni kartlar açın ve destenizi oluşturun
 
-### 🃏 Oyuncu (Garson) Yetenekleri:
-Oyuncu destesi, rastgele çekilen kartlardan oluşur ve şu etkileri içerir:
+## 🤖 Yapay Zeka Sistemi
 
-* **Sıcak Servis (Damage):** Müşterinin sabrını doğrudan azaltan ana hasar kaynağı.
-* **Midesini Bozma (Poison):** Yüksek hasar potansiyeli taşıyan ancak stratejik kullanım gerektiren kartlar.
-* **İkram (Heal/Buff):** Garsonun stres seviyesini düşürür (Can yeniler).
-* **Oyalama Taktikleri (Stun/Debuff):** Müşteriyi bekletir veya sonraki hamlesinin etkisini azaltır.
+Bu oyun **Q-Learning** tabanlı bir yapay zeka içerir. Müşteri (düşman) karakteri, takviyeli öğrenme algoritmasıyla eğitilmiş bir ajan tarafından kontrol edilir.
 
-### 😡 Rakip (Müşteri) Davranışları (AI):
-Rakip, `GameManager` içinde tanımlanmış özel bir karar mekanizmasıyla rastgele şu aksiyonlardan birini seçer:
+### Q-Learning Nedir?
+- **State (Durum)**: Oyunun anlık durumu (HP, efektler, vb.)
+- **Action (Aksiyon)**: Yapılabilecek hareketler (8 farklı saldırı)
+- **Reward (Ödül)**: Aksiyonun sonucuna göre puan
+- **Q-Table**: Her durum-aksiyon çifti için öğrenilen değerler
 
-* **Şikayet Fırtınası:** Garsona doğrudan yüksek stres (hasar) yükler.
-* **Alerji Tuzağı (Stun + Hasar):** Garsonu paniğe sürükler, hem hasar verir hem de bir tur kilitleyerek (Stun) hamle yapmasını engeller.
-* **Kötü Yorum Tehdidi (Poison):** Zamanla hasar veren (DoT) bir etki bırakır. Her tur başında garsonun canı azalır.
-* **Hesap Şoku (Debuff):** Hesabı incelemeye başlar. Garsonun bir sonraki saldırısının etkisini **%40** oranında düşürür (`customerDebuffMultiplier`).
+### Yapay Zeka Yükleme
+Ana menüdeki toggle ile AI modunu değiştirebilirsiniz:
+- **AI: Smart** - Eğitilmiş Q-Table yüklenir, AI akıllı kararlar verir
+- **AI: Random** - Q-Table boş, AI rastgele hareket eder
 
-> **Not:** Rakip karakter şu aşamada manuel çalışan bir yapıdadır. İlerleyen aşamalarda **ML-Agents** entegrasyonu için gerekli altyapı (State machine) hazırlanmıştır.
+## 📁 Proje Yapısı
 
----
+```
+Chaos-Chef/
+├── CustomerAI_Model.json     # Eğitilmiş AI ağırlıkları (Q-Table)
+├── chaos_chef_logo.png       # Oyun logosu
+├── Assets/_Game/
+│   ├── Scripts/
+│   │   ├── AI/               # AI implementasyonu
+│   │   │   ├── CustomerAI.cs     # Q-Learning algoritması
+│   │   │   ├── AITrainer.cs      # Eğitim sistemi
+│   │   │   └── TrainingPlayer.cs # Simülasyon oyuncusu
+│   │   ├── GameManager.cs    # Ana oyun döngüsü
+│   │   └── ActionProjectile.cs   # Saldırı görselleri
+│   ├── Resources/AI/         # Build için gömülü model
+│   └── Sprites/Projectiles/  # Saldırı ikonları
+└── Builds/                   # Oyun build'leri
+```
 
-## ⚙️ Teknik Özellikler
-Proje, "Clean Code" prensiplerine uygun olarak modüler bir yapıda tasarlanmıştır:
+## 🎓 Akademik Proje
 
-* **GameManager:** Oyun döngüsünü (Turn System), can değerlerini ve kazanma/kaybetme durumlarını yönetir. Singleton tasarım deseni kullanılmıştır.
-* **Card System:** `ScriptableObject` kullanılarak kart verileri (`CardData`) modüler hale getirilmiş, yeni kart eklemek kod yazmadan mümkün kılınmıştır.
-* **Audio Manager:** `AudioMixer` entegrasyonu ile Müzik ve SFX kanalları ayrı ayrı kontrol edilebilir.
-* **UI Management:** Dinamik HP barları, durum ikonları (Zehir, Stun vb. görselleri) ve menü geçişleri `UIManager` tarafından kontrol edilir.
+Bu proje, yapay zeka dersi için geliştirilmiştir ve şunları göstermektedir:
 
----
+1. **Eğitilebilir AI**: Q-Learning algoritması ile eğitilebilen ajan
+2. **Durum-Aksiyon-Ödül Döngüsü**: Reinforcement learning temelleri
+3. **Ağırlık Dosyası**: Eğitilen modelin JSON olarak dışa aktarılması
+4. **Dinamik Yükleme**: Kullanıcı seçimine göre AI modunun değişmesi
 
-## 🎛️ Menü ve Ayarlar
-* **Ana Menü:** Oyuna giriş ve çıkış işlemleri.
-* **Ayarlar (Options):** Müzik ve Efekt sesleri sliderlar aracılığıyla gerçek zamanlı (Logaritmik dB dönüşümü ile) ayarlanabilir.
+## 🔧 Kontroller
 
----
-
-## 📦 Kurulum ve Dosya Yapısı
-Bu repo, projenin kaynak kodlarını içerir.
-
-* **Unity Versiyonu:** 2021.3.x (LTS)
-
-**Projeyi kendi bilgisayarınızda çalıştırmak için:**
-1.  Repoyu klonlayın.
-2.  Unity Hub üzerinden projeyi "Add" diyerek ekleyin.
-3.  Unity, gerekli kütüphaneleri otomatik olarak oluşturacaktır.
+- **Kartlara tıklayın** - Kart oynamak için
+- **Turu Bitir** - Sıranızı bitirmek için
+- **AI Toggle** - Ana menüde AI modunu değiştirmek için

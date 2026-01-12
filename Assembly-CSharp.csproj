@@ -78,6 +78,7 @@
     <Compile Include="Assets\_Game\Scripts\CardDisplay.cs" />
     <Compile Include="Assets\_Game\Scripts\AI\AIAction.cs" />
     <Compile Include="Assets\_Game\Scripts\SaveSystem.cs" />
+    <Compile Include="Assets\_Game\Scripts\ActionProjectile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
